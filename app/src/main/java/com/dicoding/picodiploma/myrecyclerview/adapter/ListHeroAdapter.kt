@@ -21,6 +21,7 @@ import androidx.core.util.Pair
 
 class ListHeroAdapter(private val listHero: ArrayList<Hero>) : RecyclerView.Adapter<ListHeroAdapter.ListViewHolder>() {
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val view: View = LayoutInflater.from(parent.context).inflate(R.layout.item_row_hero, parent, false)
         return ListViewHolder(view)
@@ -37,6 +38,12 @@ class ListHeroAdapter(private val listHero: ArrayList<Hero>) : RecyclerView.Adap
         private var tvName: TextView = itemView.findViewById(R.id.nameTextView)
         private var tvDescription: TextView = itemView.findViewById(R.id.descTextView)
 
+        val optionCompat:ActivityOptionsCompat=ActivityOptionsCompat.makeSceneTransitionAnimation(
+            itemView.context as Activity,
+            Pair(imgPhoto,"profile"),
+            Pair(tvName,"name"),
+            Pair(tvDescription,"description")
+        )
         fun bind(hero: Hero) {
             Glide.with(itemView.context)
                 .load(hero.photo)
@@ -48,7 +55,11 @@ class ListHeroAdapter(private val listHero: ArrayList<Hero>) : RecyclerView.Adap
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, HeroActivity::class.java)
                 intent.putExtra("Hero", hero)
-                itemView.context.startActivity(intent,ActivityOptionsCompat.makeSceneTransitionAnimation(itemView.context as Activity).toBundle())
+                //menggunakan activity transition
+                //itemView.context.startActivity(intent,ActivityOptionsCompat.makeSceneTransitionAnimation(itemView.context as Activity).toBundle())
+
+                //menggunakan shared element transition
+                itemView.context.startActivity(intent,optionCompat.toBundle())
             }
         }
     }
