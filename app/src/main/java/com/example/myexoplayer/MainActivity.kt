@@ -27,7 +27,10 @@ class MainActivity : AppCompatActivity() {
             exoPlayer.addMediaItem(audioItem)
             exoPlayer.prepare()
         }
+        player.playWhenReady=true
         binding.playerView.player=player
+
+
 
         hideSystemUi()
     }
