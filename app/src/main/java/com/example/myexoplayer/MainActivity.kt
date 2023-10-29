@@ -2,6 +2,9 @@ package com.example.myexoplayer
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.MediaItem
 import com.example.myexoplayer.databinding.ActivityMainBinding
 import androidx.media3.exoplayer.ExoPlayer
@@ -25,5 +28,15 @@ class MainActivity : AppCompatActivity() {
             exoPlayer.prepare()
         }
         binding.playerView.player=player
+
+        hideSystemUi()
+    }
+
+    private fun hideSystemUi() {
+        WindowCompat.setDecorFitsSystemWindows(window,false)
+        WindowInsetsControllerCompat(window,binding.playerView).let { controller->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior=WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 }
