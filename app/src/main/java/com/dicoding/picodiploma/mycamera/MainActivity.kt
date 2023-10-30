@@ -26,15 +26,15 @@ class MainActivity : AppCompatActivity() {
         binding.uploadButton.setOnClickListener { uploadImage() }
     }
 
-    private val launcherGallery=registerForActivityResult(
+    private val launcherGallery = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
-    ){uri:Uri?->
-        if(uri!=null){
-            currentImageUri=uri
+    ) { uri: Uri? ->
+        if (uri != null) {
+            currentImageUri = uri
             showImage()
-        }else{
-            Log.d("Photo Picker","Image not found")
-            Toast.makeText(this,"Image not found",Toast.LENGTH_SHORT).show()
+        } else {
+            Log.d("Photo Picker", "Image not found")
+            Toast.makeText(this, "Image not found", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -43,8 +43,18 @@ class MainActivity : AppCompatActivity() {
         launcherGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
+
+    private val launcherIntentCamera = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { isSuccess ->
+        if (isSuccess) showImage()
+    }
+
     private fun startCamera() {
-        Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
+        currentImageUri = getImageUrl(this)
+        launcherIntentCamera.launch(currentImageUri)
+
+//        Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
     }
 
     private fun startCameraX() {
@@ -55,9 +65,9 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
     }
 
-    private fun showImage(){
-        currentImageUri?.let{
-            Log.d("Image URI","Show image from URI : $it")
+    private fun showImage() {
+        currentImageUri?.let {
+            Log.d("Image URI", "Show image from URI : $it")
             binding.previewImageView.setImageURI(it)
         }
     }
