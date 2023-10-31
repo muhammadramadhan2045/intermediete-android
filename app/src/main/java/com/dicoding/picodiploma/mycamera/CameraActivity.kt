@@ -1,5 +1,6 @@
 package com.dicoding.picodiploma.mycamera
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -90,6 +91,10 @@ class CameraActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    val intent=Intent()
+                    intent.putExtra(EXTRA_CAMERAX_IMAGE,outputFileResults.savedUri.toString())
+                    setResult(CAMERAAX_RESULT,intent)
+                    finish()
                     Toast.makeText(
                         this@CameraActivity,
                         "Berhasil mengambil gambar",
@@ -123,5 +128,7 @@ class CameraActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "CameraActivity"
+        const val EXTRA_CAMERAX_IMAGE="extra_camerax_image"
+        const val CAMERAAX_RESULT=200
     }
 }
