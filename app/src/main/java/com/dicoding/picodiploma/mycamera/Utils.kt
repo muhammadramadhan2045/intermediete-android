@@ -2,11 +2,14 @@ package com.dicoding.picodiploma.mycamera
 
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -17,6 +20,9 @@ import java.util.Locale
 
 private const val FILENAME_FORMAT = "yyyyMMdd_HHmmssSSS"
 private val timeStamp: String = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(Date())
+
+//ukuran maksimal file gambar
+private const val MAXIMAL_SIZE = 1_000_000 //1MB
 
 fun getImageUrl(context: Context): Uri {
     var uri: Uri? = null
@@ -61,6 +67,24 @@ fun uriToFile(imageUri: Uri, context: Context): File {
     inputStream.close()
     return myFile
 
+}
+
+fun File.reduceFileImage(): File {
+    val file = this
+    val bitmap = BitmapFactory.decodeFile(file.path)
+    var compressQuality = 100
+    var streamLength: Int
+
+    do {
+        val bmpStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, bmpStream)
+        val bmpPicByteArray = bmpStream.toByteArray()
+        streamLength = bmpPicByteArray.size
+        compressQuality -= 5
+
+    } while (streamLength >= MAXIMAL_SIZE)
+    bitmap?.compress(Bitmap.CompressFormat.JPEG, compressQuality, FileOutputStream(file))
+    return file
 }
 
 class Utils {
