@@ -42,6 +42,12 @@ fun getImageUriForPreQ(context: Context): Uri {
     )
 }
 
+//fungsi untuk menyimpan gambar sementara dengan  camerax
+fun createCustomTempFile(context:Context):File{
+    val fileDir=context.externalCacheDir
+    return File.createTempFile(timeStamp,".jpg",fileDir)
+}
+
 class Utils {
 
 }
