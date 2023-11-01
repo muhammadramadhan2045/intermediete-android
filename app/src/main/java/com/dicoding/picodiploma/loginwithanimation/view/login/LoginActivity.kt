@@ -3,6 +3,8 @@ package com.dicoding.picodiploma.loginwithanimation.view.login
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.activity.viewModels
@@ -26,6 +28,9 @@ class LoginActivity : AppCompatActivity() {
 
         setupView()
         setupAction()
+        setupMyEditText()
+
+
     }
 
     private fun setupView() {
@@ -39,6 +44,24 @@ class LoginActivity : AppCompatActivity() {
             )
         }
         supportActionBar?.hide()
+    }
+
+    private fun setupMyEditText(){
+        val myEditText = binding.passwordEditText
+        myEditText.addTextChangedListener(object :TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (p0.toString().length < 8&&p0.toString().isNotEmpty()) binding.loginButton.isEnabled = false else binding.loginButton.isEnabled = true
+
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+        })
     }
 
     private fun setupAction() {
