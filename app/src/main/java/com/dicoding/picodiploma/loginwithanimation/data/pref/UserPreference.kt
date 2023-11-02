@@ -38,6 +38,12 @@ class UserPreference private constructor(private val dataStore: DataStore<Prefer
         }
     }
 
+    suspend fun accountLogin() {
+        dataStore.edit { preferences ->
+            preferences[IS_LOGIN_KEY] = true
+        }
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: UserPreference? = null
