@@ -44,12 +44,13 @@
 
         <TextView
             android:id="@+id/tv_desc"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:textAlignment="center"
             android:text="@string/deskripsi"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="12sp"
+            android:maxLines="2"
             app:layout_constraintBottom_toBottomOf="@+id/img_user"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/img_user"

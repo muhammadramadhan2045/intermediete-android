@@ -15,6 +15,9 @@
     <string name="logout">Keluar</string>
     <string name="isGambar">ini adalah gambar user</string>
     <string name="nama_user">nama user</string>
-    <string name="deskripsi">deskripsi</string>
-
+    <string name="deskripsi">Deskripsi</string>
+    <string name="upload">Upload</string>
+    <string name="gallery">Galeri</string>
+    <string name="camera">Kamera</string>
+    <string name="empty_image_warning">Silakan masukkan berkas gambar terlebih dahulu.</string>
 </resources>

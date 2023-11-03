@@ -37,7 +37,7 @@ class UserStoryAdapter : ListAdapter<ListStoryItem,UserStoryAdapter.UserViewHold
     class UserViewHolder(val binding: UserStoryBinding):RecyclerView.ViewHolder(binding.root) {
         fun bind(story:ListStoryItem){
             binding.tvName.text=story.name
-            binding.tvDesc.text=story.description
+            binding.tvDesc.text=story.description   
             Glide.with(itemView.context)
                 .load(story.photoUrl)
                 .into(binding.imgUser)

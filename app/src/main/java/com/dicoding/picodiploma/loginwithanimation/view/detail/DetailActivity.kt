@@ -24,6 +24,7 @@ class DetailActivity : AppCompatActivity() {
             .into(findViewById(R.id.profileImageView))
         binding.nameTextView.text = story.name
         binding.descTextView.text = story.description
+        supportActionBar?.hide()
     }
 
     companion object{

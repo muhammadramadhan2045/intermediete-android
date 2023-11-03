@@ -18,6 +18,7 @@ import com.dicoding.picodiploma.loginwithanimation.data.response.ListStoryItem
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityMainBinding
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
 import com.dicoding.picodiploma.loginwithanimation.view.detail.DetailActivity
+import com.dicoding.picodiploma.loginwithanimation.view.story.AddStoryActivity
 import com.dicoding.picodiploma.loginwithanimation.view.welcome.WelcomeActivity
 
 class MainActivity : AppCompatActivity() {
@@ -29,8 +30,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        //pakaikan actionbar
-            setContentView(binding.root)
+        setContentView(binding.root)
 
         viewModel.getSession().observe(this) { user ->
             if (!user.isLogin) {
@@ -45,7 +45,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
         val layoutManager = LinearLayoutManager(this)
         binding.rvUsers.layoutManager = layoutManager
 
@@ -55,12 +54,22 @@ class MainActivity : AppCompatActivity() {
         showLoading()
         showSnackBar()
 
+        binding.fabAdd.setOnClickListener {
+            val intent = Intent(this, AddStoryActivity::class.java)
+            startActivity(intent)
+        }
+
 
 
 
         setupView()
         setupAction()
         playAnimation()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getStories()
     }
 
     private fun setUsersData(items: List<ListStoryItem>) {
@@ -122,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
         }
-        supportActionBar?.hide()
+        supportActionBar?.setTitle("Dicoding Stories")
     }
 
     private fun setupAction() {
