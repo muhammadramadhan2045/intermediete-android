@@ -55,6 +55,8 @@ class AddStoryActivity : AppCompatActivity() {
         binding = ActivityAddStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        supportActionBar?.hide()
+
         if (!allPermissionGranted()) {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
         }

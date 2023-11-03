@@ -25,9 +25,4 @@ class LoginViewModel(private val repository: UserRepository) : ViewModel() {
         }
     }
 
-    fun accountLogin(){
-        viewModelScope.launch {
-            repository.accountLogin()
-        }
-    }
 }

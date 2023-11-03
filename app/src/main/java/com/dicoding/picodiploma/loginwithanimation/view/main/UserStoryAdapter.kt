@@ -16,11 +16,6 @@ import com.dicoding.picodiploma.loginwithanimation.view.detail.DetailActivity
 
 class UserStoryAdapter : ListAdapter<ListStoryItem,UserStoryAdapter.UserViewHolder>(DIFF_CALLBACK) {
 
-//    private lateinit var onItemClickCallback: OnItemClickCallback
-//
-//    fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
-//        this.onItemClickCallback = onItemClickCallback
-//    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val binding=UserStoryBinding.inflate(LayoutInflater.from(parent.context),parent,false)
@@ -30,14 +25,11 @@ class UserStoryAdapter : ListAdapter<ListStoryItem,UserStoryAdapter.UserViewHold
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val story=getItem(position)
         holder.bind(story)
-//        holder.itemView.setOnClickListener{
-//            onItemClickCallback.onItemClicked(getItem(holder.adapterPosition))
-//        }
     }
     class UserViewHolder(val binding: UserStoryBinding):RecyclerView.ViewHolder(binding.root) {
         fun bind(story:ListStoryItem){
             binding.tvName.text=story.name
-            binding.tvDesc.text=story.description   
+            binding.tvDesc.text=story.description
             Glide.with(itemView.context)
                 .load(story.photoUrl)
                 .into(binding.imgUser)
@@ -72,7 +64,4 @@ class UserStoryAdapter : ListAdapter<ListStoryItem,UserStoryAdapter.UserViewHold
         }
     }
 
-//    interface OnItemClickCallback {
-//        fun onItemClicked(data: ListStoryItem)
-//    }
 }

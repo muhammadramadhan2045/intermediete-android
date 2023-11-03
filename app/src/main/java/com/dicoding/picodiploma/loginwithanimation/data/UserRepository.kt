@@ -1,11 +1,9 @@
 package com.dicoding.picodiploma.loginwithanimation.data
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import com.dicoding.picodiploma.loginwithanimation.data.api.ApiConfig
 import com.dicoding.picodiploma.loginwithanimation.data.api.ApiService
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserModel
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
