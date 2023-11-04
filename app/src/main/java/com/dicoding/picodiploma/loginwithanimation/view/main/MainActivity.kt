@@ -76,14 +76,7 @@ class MainActivity : AppCompatActivity() {
         val adapter = UserStoryAdapter()
         adapter.submitList(items)
         binding.rvUsers.adapter = adapter
-//        adapter.setOnItemClickCallback(object : UserStoryAdapter.OnItemClickCallback{
-//            override fun onItemClicked(data: ListStoryItem) {
-//                val intent = Intent(this@MainActivity, DetailActivity::class.java)
-//
-//                startActivity(intent)
-//            }
-//
-//        })
+
     }
 
     private fun showLoading() {

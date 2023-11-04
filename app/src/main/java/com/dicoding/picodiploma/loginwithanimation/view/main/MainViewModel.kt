@@ -16,7 +16,9 @@ class MainViewModel(private val repository: UserRepository) : ViewModel() {
     val snackbarText:LiveData<Event<String>> = repository.snackbarText
     val isLoading:LiveData<Boolean> = repository.isLoading
 
-
+init{
+    getStories()
+}
     fun getStories() {
         viewModelScope.launch {
             repository.getStories()
