@@ -20,4 +20,6 @@
     <string name="gallery">Galeri</string>
     <string name="camera">Kamera</string>
     <string name="empty_image_warning">Silakan masukkan berkas gambar terlebih dahulu.</string>
+    <string name="retry">Coba lagi</string>
+    <string name="timeout">Timeout</string>
 </resources>

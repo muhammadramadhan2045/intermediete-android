@@ -25,9 +25,6 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-
-
         setupView()
         setupAction()
 
@@ -50,14 +47,16 @@ class LoginActivity : AppCompatActivity() {
     private fun setupAction() {
         binding.loginButton.setOnClickListener {
             val email = binding.emailEditText.text.toString()
-            val password=binding.passwordEditText.text.toString()
+            val password = binding.passwordEditText.text.toString()
 
-            if(email.isEmpty()&&password.isEmpty()){
-                Toast.makeText(this,"Email dan Password tidak boleh kosong",Toast.LENGTH_SHORT).show()
-            }else if(email.isNotEmpty() || password.isNotEmpty()){
+            if (email.isEmpty() && password.isEmpty()) {
+                Toast.makeText(this, "Email dan Password tidak boleh kosong", Toast.LENGTH_SHORT)
+                    .show()
+            } else if (email.isNotEmpty() || password.isNotEmpty()) {
                 showLoading()
-                postLogin(email,password)
+                postLogin(email, password)
                 showSnackBar()
+                viewModel.getLogin()
                 toHome()
 
             }
@@ -66,36 +65,37 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun showLoading(){
-        viewModel.isLoading.observe(this@LoginActivity){
+    private fun showLoading() {
+        viewModel.isLoading.observe(this@LoginActivity) {
             binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
         }
     }
 
-    private fun postLogin(email:String, password:String){
+    private fun postLogin(email: String, password: String) {
         viewModel.login(email, password)
-        viewModel.loginResponse.observe(this@LoginActivity){
+        viewModel.loginResponse.observe(this@LoginActivity) {
             saveSession(
                 UserModel(
                     it.loginResult?.name.toString(),
-                    it.loginResult?.token.toString(),
+                    "Bearer ${it.loginResult?.token.toString()} ",
                     true
                 )
             )
         }
     }
 
-    private fun saveSession(session:UserModel){
+    private fun saveSession(session: UserModel) {
         viewModel.saveSession(session)
     }
 
-    private fun showSnackBar(){
-        viewModel.snackbarText.observe(this@LoginActivity){
+    private fun showSnackBar() {
+        viewModel.snackbarText.observe(this@LoginActivity) {
             it.getContentIfNotHandled()?.let { message ->
                 Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     private fun toHome() {
         viewModel.loginResponse.observe(this@LoginActivity) {
@@ -106,6 +106,10 @@ class LoginActivity : AppCompatActivity() {
                 finish()
             }
         }
+    }
+
+    companion object {
+        private const val AUTH_KEY = "Bearer "
     }
 
 }

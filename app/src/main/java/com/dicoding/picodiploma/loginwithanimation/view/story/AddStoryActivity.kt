@@ -20,6 +20,7 @@ import com.dicoding.picodiploma.loginwithanimation.utils.reduceFileImage
 import com.dicoding.picodiploma.loginwithanimation.utils.uriToFile
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
 import com.dicoding.picodiploma.loginwithanimation.view.main.MainActivity
+import com.dicoding.picodiploma.loginwithanimation.view.welcome.WelcomeActivity
 
 
 class AddStoryActivity : AppCompatActivity() {
@@ -32,6 +33,7 @@ class AddStoryActivity : AppCompatActivity() {
     }
 
     private var currentImageUri: Uri? = null
+    private var dataToken: String? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -50,12 +52,26 @@ class AddStoryActivity : AppCompatActivity() {
             REQUIRED_PERMISSION
         ) == PackageManager.PERMISSION_GRANTED
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         supportActionBar?.hide()
+
+        viewModel.getSession().observe(this) { user ->
+            if (!user.isLogin) {
+                val intent = Intent(this, WelcomeActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
+            } else {
+                println("nama email: ${user.email}")
+                println("nama token Anda pada AddStory: ${user.token}")
+                dataToken = user.token
+            }
+        }
 
         if (!allPermissionGranted()) {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
@@ -64,8 +80,9 @@ class AddStoryActivity : AppCompatActivity() {
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.cameraButton.setOnClickListener { startCamera() }
         binding.uploadButton.setOnClickListener {
-            addStory()
+            addStory(dataToken!!)
         }
+
     }
 
 
@@ -101,7 +118,7 @@ class AddStoryActivity : AppCompatActivity() {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
-    private fun addStory() {
+    private fun addStory(token: String) {
         currentImageUri?.let { uri ->
             val imageFile = uriToFile(uri, this).reduceFileImage()
             Log.d("Image File", "showImage : ${imageFile.path}")
@@ -111,7 +128,7 @@ class AddStoryActivity : AppCompatActivity() {
 
 
 
-            viewModel.addStory(imageFile, description).observe(this) { result ->
+            viewModel.addStory(token,imageFile, description).observe(this) { result ->
                 if (result != null) {
                     when (result) {
                         is ResultState.Loading -> {
@@ -154,6 +171,7 @@ class AddStoryActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUIRED_PERMISSION = android.Manifest.permission.CAMERA
+        const val EXTRA_TOKEN= "extra_token"
     }
 
 }

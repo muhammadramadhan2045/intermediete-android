@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.service.autofill.Dataset
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
 import com.dicoding.picodiploma.loginwithanimation.data.response.ListStoryItem
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityMainBinding
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
@@ -26,57 +28,64 @@ class MainActivity : AppCompatActivity() {
         ViewModelFactory.getInstance(this)
     }
     private lateinit var binding: ActivityMainBinding
+    private var token: String? = null
+    private lateinit var adapter: UserStoryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        viewModel.getSession().observe(this) { user ->
-            if (!user.isLogin) {
-                startActivity(Intent(this, WelcomeActivity::class.java))
-                finish()
-            } else {
-                binding.nameTextView.text = user.email
-                println("nama email: ${user.email}")
-                println("token Anda: ${user.token}")
-
-            }
-        }
-
-
-        val layoutManager = LinearLayoutManager(this)
-        binding.rvUsers.layoutManager = layoutManager
-
-        viewModel.listStories.observe(this) {
-            setUsersData(it)
-        }
-        showLoading()
-        showSnackBar()
-
-        binding.fabAdd.setOnClickListener {
-            val intent = Intent(this, AddStoryActivity::class.java)
-            startActivity(intent)
-        }
-
-
-
-
+        setupViewContent()
+        setupUser()
+        getDataAdapter()
         setupView()
         setupAction()
         playAnimation()
+
+
+
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.getStories()
+//    override fun onResume() {
+//        super.onResume()
+//        viewModel.getStories
+//    }
+
+    private fun setupViewContent(){
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
+    private fun setupUser() {
+        binding.progressBar.visibility = View.VISIBLE
+        viewModel.getSession().observe(this) { user ->
+            if (!user.isLogin) {
+                val intent = Intent(this, WelcomeActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
+            } else {
+                binding.nameTextView.text = user.email
+                token = user.token
+                println("nama email: ${user.email}")
+                println("nama token Anda: ${user.token}")
+                viewModel.getStories.observe(this@MainActivity) {
+                    adapter.submitData(lifecycle, it)
+                }
+                binding.progressBar.visibility = View.GONE
+
+            }
+        }
+        showSnackBar()
     }
 
-    private fun setUsersData(items: List<ListStoryItem>) {
-        val adapter = UserStoryAdapter()
-        adapter.submitList(items)
-        binding.rvUsers.adapter = adapter
-
+    private fun getDataAdapter() {
+        val layoutManager = LinearLayoutManager(this@MainActivity)
+        binding.rvUsers.layoutManager = layoutManager
+        adapter = UserStoryAdapter()
+        binding.rvUsers.adapter = adapter.withLoadStateFooter(
+            footer=LoadingStateAdapter{
+                adapter.retry()
+            }
+        )
     }
 
     private fun showLoading() {
@@ -130,6 +139,12 @@ class MainActivity : AppCompatActivity() {
     private fun setupAction() {
         binding.logoutButton.setOnClickListener {
             viewModel.logout()
+            token = null
+        }
+
+        binding.fabAdd.setOnClickListener {
+            val intent = Intent(this, AddStoryActivity::class.java)
+            startActivity(intent)
         }
     }
 

@@ -3,7 +3,13 @@ package com.dicoding.picodiploma.loginwithanimation.data
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
+import com.dicoding.picodiploma.loginwithanimation.data.api.ApiConfig
 import com.dicoding.picodiploma.loginwithanimation.data.api.ApiService
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserModel
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
@@ -14,8 +20,11 @@ import com.dicoding.picodiploma.loginwithanimation.data.response.RegisterRespons
 import com.dicoding.picodiploma.loginwithanimation.data.response.ResultState
 import com.dicoding.picodiploma.loginwithanimation.data.response.StoriesResponse
 import com.dicoding.picodiploma.loginwithanimation.utils.Event
+import com.dicoding.picodiploma.loginwithanimation.view.main.StoryPagingSource
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -39,8 +48,8 @@ class UserRepository private constructor(
     private val _loginResponse = MutableLiveData<LoginResponse>()
     val loginResponse: LiveData<LoginResponse> = _loginResponse
 
-    private val _listStories=MutableLiveData<List<ListStoryItem>>()
-    val listStories:LiveData<List<ListStoryItem>> = _listStories
+    private val _listStories = MutableLiveData<List<ListStoryItem>>()
+    val listStories: LiveData<List<ListStoryItem>> = _listStories
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -48,9 +57,10 @@ class UserRepository private constructor(
     private val _snackbarText = MutableLiveData<Event<String>>()
     val snackbarText: LiveData<Event<String>> = _snackbarText
 
-    init {
-        getStories()
-    }
+    val user = runBlocking { userPreference.getSession().first() }
+
+
+
     fun register(name: String, email: String, password: String) {
         _isLoading.value = true
         val client = apiService.register(name, email, password)
@@ -150,49 +160,58 @@ class UserRepository private constructor(
         })
     }
 
-    fun getStories() {
-        _isLoading.value = true
-        val client = apiService.getStories()
-        client.enqueue(object : Callback<StoriesResponse> {
-            override fun onResponse(
-                call: Call<StoriesResponse>,
-                response: Response<StoriesResponse>
-            ) {
-                try {
-                    _isLoading.value = false
-                    if (response.isSuccessful && response.body() != null) {
-                        val responseBody=response.body()
-                        _listStories.value =responseBody?.listStory
-                        _snackbarText.value = Event(response.body()?.message.toString())
-                        Log.e("Stories Success", "${response.body()?.message}")
-                    }
-                } catch (e: JSONException) {
-                    _snackbarText.value = Event(e.message.toString())
-                    Log.e("Stories Failure", "${e.message}")
-                }
-
-            }
-
-            override fun onFailure(call: Call<StoriesResponse>, t: Throwable) {
-                _isLoading.value = false
-                when (t) {
-                    is UnknownHostException -> {
-                        _snackbarText.value = Event("No Internet Connection")
-                        Log.e("UnknownHostException", "${t.message}")
-                    }
-
-                    else -> {
-                        _snackbarText.value = Event(t.message.toString())
-                        Log.e("Unknown Error", "${t.message}")
-                    }
-                }
-            }
-        })
+    fun getStories(): LiveData<PagingData<ListStoryItem>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 5
+            ),
+            pagingSourceFactory = { StoryPagingSource(userPreference, apiService) }
+        ).liveData
     }
 
+//    fun getStories(token: String) {
+//        _isLoading.value = true
+//        val client = apiService.getStories("Bearer $token")
+//        println("ini adalah token bro ${user.token}")
+//        client.enqueue(object : Callback<StoriesResponse> {
+//            override fun onResponse(
+//                call: Call<StoriesResponse>,
+//                response: Response<StoriesResponse>
+//            ) {
+//                try {
+//                    _isLoading.value = false
+//                    if (response.isSuccessful && response.body() != null) {
+//                        val responseBody=response.body()
+//                        _listStories.value =responseBody?.listStory
+//                        _snackbarText.value = Event(response.body()?.message.toString())
+//                        Log.e("Stories Success", "${response.body()?.message}")
+//                    }
+//                } catch (e: JSONException) {
+//                    _snackbarText.value = Event(e.message.toString())
+//                    Log.e("Stories Failure", "${e.message}")
+//                }
+//
+//            }
+//
+//            override fun onFailure(call: Call<StoriesResponse>, t: Throwable) {
+//                _isLoading.value = false
+//                when (t) {
+//                    is UnknownHostException -> {
+//                        _snackbarText.value = Event("No Internet Connection")
+//                        Log.e("UnknownHostException", "${t.message}")
+//                    }
+//
+//                    else -> {
+//                        _snackbarText.value = Event(t.message.toString())
+//                        Log.e("Unknown Error", "${t.message}")
+//                    }
+//                }
+//            }
+//        })
+//    }
 
 
-    fun addStory(imageFile: File, description: String) = liveData<Any> {
+    fun addStory(token: String, imageFile: File, description: String) = liveData<Any> {
         emit(ResultState.Loading)
         val requestBody = description.toRequestBody("text/plain".toMediaType())
         val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
@@ -202,7 +221,7 @@ class UserRepository private constructor(
             requestImageFile
         )
         try {
-            val successResponse = apiService.addStory(multipartBody, requestBody)
+            val successResponse = apiService.addStory(token, multipartBody, requestBody)
             emit(ResultState.Success(successResponse.message))
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
@@ -216,12 +235,12 @@ class UserRepository private constructor(
         userPreference.saveSession(user)
     }
 
-    fun getSession(): Flow<UserModel> {
-        return userPreference.getSession()
+    fun getSession(): LiveData<UserModel> {
+        return userPreference.getSession().asLiveData()
     }
 
-    suspend fun accountLogin() {
-        userPreference.accountLogin()
+    suspend fun getLogin() {
+        userPreference.getLogin()
     }
 
     suspend fun logout() {

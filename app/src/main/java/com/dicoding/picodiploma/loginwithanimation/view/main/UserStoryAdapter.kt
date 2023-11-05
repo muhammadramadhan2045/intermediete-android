@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -15,7 +16,13 @@ import com.dicoding.picodiploma.loginwithanimation.databinding.UserStoryBinding
 import com.dicoding.picodiploma.loginwithanimation.view.detail.DetailActivity
 
 class UserStoryAdapter :
-    ListAdapter<ListStoryItem, UserStoryAdapter.UserViewHolder>(DIFF_CALLBACK) {
+    PagingDataAdapter<ListStoryItem, UserStoryAdapter.UserViewHolder>(DIFF_CALLBACK) {
+
+    private lateinit var onItemClickCallback: OnItemClickCallback
+
+    fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
+        this.onItemClickCallback = onItemClickCallback
+    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
@@ -25,7 +32,9 @@ class UserStoryAdapter :
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val story = getItem(position)
-        holder.bind(story)
+        if (story != null) {
+            holder.bind(story)
+        }
     }
 
     class UserViewHolder(val binding: UserStoryBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -68,6 +77,8 @@ class UserStoryAdapter :
 
         }
     }
-
+    interface OnItemClickCallback {
+        fun onItemClicked(data: ListStoryItem)
+    }
 
 }
